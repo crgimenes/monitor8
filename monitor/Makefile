@@ -1,2 +1,2 @@
 @all:
-	cc -o m8 monitor/monitor_macOS.c
+	cc -o m8 monitor_macOS.c

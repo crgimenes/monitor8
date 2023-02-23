@@ -1,17 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/types.h>
-#include <sys/sysctl.h>
 #include <sys/resource.h>
+#include <sys/sysctl.h>
+#include <sys/types.h>
 
 // sysctl -n vm.loadavg
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     double avg[3];
 
-    if (getloadavg(avg, 3) < 0)
-    {
+    if (getloadavg(avg, 3) < 0) {
         perror("getloadavg");
         return -1;
     }
@@ -44,7 +42,8 @@ int main(int argc, char *argv[])
             printf("ru_nvcsw: %ld\n", usage.ru_nvcsw);
             printf("ru_nivcsw: %ld\n", usage.ru_nivcsw);
 
-            printf("ru_utime: %ld.%06d\n", usage.ru_utime.tv_sec, usage.ru_utime.tv_usec);
+            printf("ru_utime: %ld.%06d\n", usage.ru_utime.tv_sec,
+       usage.ru_utime.tv_usec);
         }
     */
     return 0;

@@ -3,19 +3,16 @@
 
 // TODO: use getloadavg() instead of /proc/loadavg
 
-static int get_loadavg(double *avg)
-{
+static int get_loadavg(double *avg) {
     FILE *fp;
     char buf[256];
     int n;
 
-    if ((fp = fopen("/proc/loadavg", "r")) == NULL)
-    {
+    if ((fp = fopen("/proc/loadavg", "r")) == NULL) {
         return -1;
     }
 
-    if (fgets(buf, sizeof(buf), fp) == NULL)
-    {
+    if (fgets(buf, sizeof(buf), fp) == NULL) {
         fclose(fp);
         return -1;
     }
@@ -23,20 +20,17 @@ static int get_loadavg(double *avg)
     fclose(fp);
 
     n = sscanf(buf, "%lf %lf %lf", avg, avg + 1, avg + 2);
-    if (n != 3)
-    {
+    if (n != 3) {
         return -1;
     }
 
     return 0;
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     double avg[3];
 
-    if (get_loadavg(avg) < 0)
-    {
+    if (get_loadavg(avg) < 0) {
         fprintf(stderr, "get_loadavg() failed");
         return -1;
     }
