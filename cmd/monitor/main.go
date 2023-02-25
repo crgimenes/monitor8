@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"syscall"
 
 	"crg.eti.br/go/config"
 	_ "crg.eti.br/go/config/ini"
@@ -56,7 +57,7 @@ func visit(path string, f os.FileInfo, perr error) error {
 		return perr
 	}
 
-	if !f.IsDir() {
+	if f.IsDir() {
 		return nil
 	}
 
@@ -72,54 +73,51 @@ func visit(path string, f os.FileInfo, perr error) error {
 
 func readProcesses() ([]ProcessInfo, error) {
 	var processes []ProcessInfo
-	/*
-		files, err := ioutil.ReadDir("/proc")
-		if err != nil {
-			return processes, err
-		}
-	*/
 
 	err := filepath.Walk("/proc", visit)
 	if err == nil || errors.Is(err, io.EOF) {
-		return
+		return processes, nil
 	}
 
 	return processes, nil
 }
 
 func main() {
+	if syscall.Getuid() != 0 {
+		fmt.Printf("you must be root to run %q\n", os.Args[0])
+		os.Exit(1)
+	}
+
 	cfg, err := load()
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 	}
 
 	println(cfg.MaxProcess)
 
 	loadavg, err := os.ReadFile("/proc/loadavg")
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 	}
 
 	load := strings.Split(string(loadavg), " ")
 
 	loadLast1, err := strconv.ParseFloat(load[0], 64)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 	}
 
 	loadLast5, err := strconv.ParseFloat(load[1], 64)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 	}
 
 	loadLast15, err := strconv.ParseFloat(load[2], 64)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 	}
 
 	fmt.Printf("Load average: %.2f %.2f %.2f\n", loadLast1, loadLast5, loadLast15)
 
 	readProcesses()
 }
-
-// /proc/stat
