@@ -190,5 +190,20 @@ func main() {
 
 	fmt.Printf("Uptime: %v seconds\n", uptimeSeconds)
 
-	readProcesses()
+	// readProcesses()
+
+	// read all directories in /proc
+	files, err := os.ReadDir("/proc")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	for _, file := range files {
+		if file.IsDir() {
+			if fileExists("/proc/" + file.Name() + "/stat") {
+				fmt.Println(file.Name())
+			}
+		}
+	}
+
 }
