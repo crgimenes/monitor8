@@ -14,6 +14,7 @@ import (
 
 	"crg.eti.br/go/config"
 	_ "crg.eti.br/go/config/ini"
+	"crg.eti.br/go/monitor8/proc"
 )
 
 type Config struct {
@@ -148,46 +149,14 @@ func main() {
 		fmt.Println(err)
 	}
 
-	println(cfg.MaxProcess)
-
-	loadavg, err := os.ReadFile("/proc/loadavg")
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	load := strings.Split(string(loadavg), " ")
-
-	loadLast1, err := strconv.ParseFloat(load[0], 64)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	loadLast5, err := strconv.ParseFloat(load[1], 64)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	loadLast15, err := strconv.ParseFloat(load[2], 64)
-	if err != nil {
-		fmt.Println(err)
-	}
+	fmt.Printf("cfg.MaxProcess %d\n", cfg.MaxProcess)
+	loadLast1, loadLast5, loadLast15, err := proc.GetLoadAverage()
 
 	fmt.Printf("Load average: %.2f %.2f %.2f\n", loadLast1, loadLast5, loadLast15)
 
 	// le o arquivo /proc/uptime e pega o primerio campo, convertendo para int
-	uptime, err := os.ReadFile("/proc/uptime")
-	if err != nil {
-		fmt.Println(err)
-	}
 
-	fmt.Println("uptime", string(uptime))
-	uptimeFields := strings.Fields(string(uptime))
-	fmt.Println("uptimeFields", uptimeFields)
-	uptimeSeconds, err = strconv.ParseFloat(uptimeFields[0], 64)
-	if err != nil {
-		fmt.Println(err)
-	}
-
+	uptimeSeconds, err = proc.GetUptime()
 	fmt.Printf("Uptime: %v seconds\n", uptimeSeconds)
 
 	// readProcesses()
