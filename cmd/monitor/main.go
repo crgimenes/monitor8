@@ -1,16 +1,10 @@
 package main
 
 import (
-	"errors"
 	"fmt"
-	"io"
-	"io/fs"
-	"log"
 	"os"
-	"path/filepath"
-	"strconv"
-	"strings"
 	"syscall"
+	"time"
 
 	"crg.eti.br/go/config"
 	_ "crg.eti.br/go/config/ini"
@@ -37,103 +31,6 @@ func load() (Config, error) {
 	return cfg, nil
 }
 
-type ProcessInfo struct {
-	PID  int
-	Name string
-	CPU  float64
-}
-
-func fileExists(path string) (ret bool) {
-	_, err := os.Stat(path)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return
-		}
-
-		log.Println(err)
-		return
-	}
-
-	ret = true
-	return
-}
-
-func visit(path string, f fs.DirEntry, err error) error {
-	if err != nil {
-		return err
-	}
-
-	if !f.IsDir() {
-		return nil
-	}
-
-	if !fileExists(path + "/stat") {
-		return nil
-	}
-
-	pid, err := strconv.Atoi(f.Name())
-	if err != nil {
-		return nil
-	}
-	if pid == 0 {
-		return nil
-	}
-
-	stat, err := os.ReadFile(path + "/stat")
-	if err != nil {
-		fmt.Println(err)
-		return nil
-	}
-
-	fields := strings.Fields(string(stat))
-	/*
-		for i, field := range fields {
-			fmt.Printf("%d %q\n", i, field)
-		}
-	*/
-	/*
-	   #14 utime - CPU time spent in user code, measured in clock ticks
-	   #15 stime - CPU time spent in kernel code, measured in clock ticks
-	   #16 cutime - Waited-for children's CPU time spent in user code (in clock ticks)
-	   #17 cstime - Waited-for children's CPU time spent in kernel code (in clock ticks)
-	   #22 starttime - Time when the process started, measured in clock ticks
-	*/
-
-	utime, _ := strconv.Atoi(fields[13])
-	stime, _ := strconv.Atoi(fields[14])
-	cutime, _ := strconv.Atoi(fields[15])
-	cstime, _ := strconv.Atoi(fields[16])
-	starttime, _ := strconv.ParseFloat(fields[21], 64)
-
-	total_time := utime + stime + cutime + cstime
-
-	const _SYSTEM_CLK_TCK = 100
-
-	Hertz := float64(_SYSTEM_CLK_TCK)
-
-	seconds := uptimeSeconds - (starttime / Hertz)
-
-	if seconds == 0 {
-		seconds = 1
-	}
-
-	cpu_usage := 100 * ((float64(total_time) / Hertz) / seconds)
-
-	fmt.Printf("PID: %d path %q cpu_usage %v\n", pid, path, cpu_usage)
-	return nil
-}
-
-func readProcesses() ([]ProcessInfo, error) {
-	var processes []ProcessInfo
-
-	err := filepath.WalkDir("/proc", visit)
-	if err == nil || errors.Is(err, io.EOF) {
-		return processes, nil
-	}
-
-	return processes, nil
-}
-
 func main() {
 
 	// set uid to root
@@ -157,22 +54,21 @@ func main() {
 	// le o arquivo /proc/uptime e pega o primerio campo, convertendo para int
 
 	uptimeSeconds, err = proc.GetUptime()
-	fmt.Printf("Uptime: %v seconds\n", uptimeSeconds)
+	// uptime in hours:minutes:seconds
+	uptime := time.Duration(uptimeSeconds * float64(time.Second))
+	fmt.Printf("Uptime: %s\n", uptime)
 
-	// readProcesses()
-
-	// read all directories in /proc
-	files, err := os.ReadDir("/proc")
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	for _, file := range files {
-		if file.IsDir() {
-			if fileExists("/proc/" + file.Name() + "/stat") {
-				fmt.Println(file.Name())
-			}
+	for {
+		fmt.Printf("\033[2J\033[1;1H") // clear screen
+		list, err := proc.GetTopProcesses()
+		if err != nil {
+			fmt.Println(err)
+			return
 		}
+		for k, v := range list[:10] {
+			fmt.Printf("%d. %s %.2f%% pid %d\n", k+1, v.Name, v.CPU, v.PID)
+		}
+		time.Sleep(1 * time.Second)
 	}
 
 }
