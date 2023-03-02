@@ -33,3 +33,14 @@ func GetLoadAverage() (float64, float64, float64, error) {
 
 	return loadLast1, loadLast5, loadLast15, nil
 }
+
+// GetUptime returns the uptime in seconds.
+func GetUptime() (float64, error) {
+	uptime, err := os.ReadFile("/proc/uptime")
+	if err != nil {
+		return 0, err
+	}
+
+	uptimeFields := strings.Fields(string(uptime))
+	return strconv.ParseFloat(uptimeFields[0], 64)
+}
