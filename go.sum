@@ -1,5 +1,5 @@
-crg.eti.br/go/config v1.4.13 h1:N8qnS7JTYafJWNScsiEwAfH4VWGXowkNXt7xBqRmP/w=
-crg.eti.br/go/config v1.4.13/go.mod h1:hI7cWzMLNlhnC2fGyGa37+Gz4K+khjWailvDYWXe9N4=
+crg.eti.br/go/config v1.5.0 h1:UiHy9zAhFj5LxKPm7TwgVMc7VBxtYWpFcGtXKQHCyf0=
+crg.eti.br/go/config v1.5.0/go.mod h1:Wk/f8SMC4nwlUJu0gRqUA6IOCJ/vMDMlaOvKaF6KqKI=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=

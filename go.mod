@@ -1,8 +1,8 @@
 module crg.eti.br/go/monitor8
 
-go 1.21
+go 1.22
 
-require crg.eti.br/go/config v1.4.13
+require crg.eti.br/go/config v1.5.0
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
